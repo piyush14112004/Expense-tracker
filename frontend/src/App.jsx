@@ -11,6 +11,24 @@ import {
 
 const categories = ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Other']
 
+function getLocalDateString() {
+  const today = new Date()
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset())
+  return today.toISOString().slice(0, 10)
+}
+
+function escapeHtml(value) {
+  const characters = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }
+
+  return String(value ?? '').replace(/[&<>"']/g, (character) => characters[character])
+}
+
 function App() {
   const [user, setUser] = useState(null)
   const [checkingSession, setCheckingSession] = useState(true)
@@ -23,7 +41,7 @@ function App() {
     description: '',
     amount: '',
     category: 'Food',
-    date: new Date().toISOString().slice(0, 10)
+    date: getLocalDateString()
   })
 
   useEffect(() => {
@@ -93,7 +111,7 @@ function App() {
         description: '',
         amount: '',
         category: 'Food',
-        date: new Date().toISOString().slice(0, 10)
+        date: getLocalDateString()
       })
     } catch (requestError) {
       setError(requestError.message)
@@ -116,6 +134,239 @@ function App() {
       style: 'currency',
       currency: 'INR'
     }).format(amount)
+
+  function downloadExpenseReport() {
+    setError('')
+
+    if (expenses.length === 0) {
+      setError('Download karne ke liye pehle ek expense add karo.')
+      return
+    }
+
+    const printWindow = window.open('', '_blank', 'width=900,height=700')
+
+    if (!printWindow) {
+      setError('Report kholne ke liye browser mein pop-ups allow karo.')
+      return
+    }
+
+    const total = expenses.reduce(
+      (sum, expense) => sum + Number(expense.amount),
+      0
+    )
+
+    const expenseRows = expenses
+      .map(
+        (expense) => `
+          <tr>
+            <td class="description">${escapeHtml(expense.description)}</td>
+            <td>${escapeHtml(expense.category)}</td>
+            <td>${escapeHtml(expense.date)}</td>
+            <td class="amount">${escapeHtml(formatMoney(expense.amount))}</td>
+          </tr>
+        `
+      )
+      .join('')
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Expense Report</title>
+          <style>
+            @page {
+              size: A4;
+              margin: 16mm;
+            }
+
+            * {
+              box-sizing: border-box;
+            }
+
+            body {
+              margin: 0;
+              color: #24332d;
+              font-family: Arial, sans-serif;
+              background: #ffffff;
+            }
+
+            .report {
+              max-width: 900px;
+              margin: 0 auto;
+            }
+
+            .header {
+              padding-bottom: 18px;
+              border-bottom: 3px solid #397451;
+            }
+
+            .brand {
+              color: #397451;
+              font-size: 12px;
+              font-weight: bold;
+              letter-spacing: 2px;
+              text-transform: uppercase;
+            }
+
+            h1 {
+              margin: 12px 0 5px;
+              color: #24332d;
+              font-size: 30px;
+            }
+
+            .subtitle {
+              margin: 0;
+              color: #64736b;
+              font-size: 14px;
+            }
+
+            .details {
+              display: flex;
+              justify-content: space-between;
+              gap: 16px;
+              margin: 22px 0;
+              padding: 16px;
+              border-radius: 12px;
+              background: #edf5ef;
+            }
+
+            .detail-label {
+              display: block;
+              margin-bottom: 5px;
+              color: #64736b;
+              font-size: 11px;
+            }
+
+            .detail-value {
+              color: #24332d;
+              font-size: 17px;
+              font-weight: bold;
+            }
+
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: fixed;
+              font-size: 12px;
+            }
+
+            th {
+              padding: 11px 9px;
+              color: white;
+              background: #397451;
+              text-align: left;
+            }
+
+            td {
+              padding: 10px 9px;
+              border-bottom: 1px solid #dce6df;
+              vertical-align: top;
+              overflow-wrap: anywhere;
+            }
+
+            tbody tr:nth-child(even) {
+              background: #f5f8f6;
+            }
+
+            th:nth-child(1) { width: 42%; }
+            th:nth-child(2) { width: 18%; }
+            th:nth-child(3) { width: 18%; }
+            th:nth-child(4) { width: 22%; }
+
+            .amount {
+              text-align: right;
+              white-space: nowrap;
+            }
+
+            .total {
+              display: flex;
+              justify-content: space-between;
+              margin-top: 20px;
+              padding: 15px 16px;
+              border-radius: 10px;
+              color: white;
+              background: #397451;
+              font-size: 17px;
+              font-weight: bold;
+            }
+
+            .footer {
+              margin-top: 24px;
+              color: #64736b;
+              font-size: 10px;
+              text-align: center;
+            }
+
+            @media print {
+              .report {
+                max-width: none;
+              }
+
+              tr {
+                break-inside: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <main class="report">
+            <header class="header">
+              <div class="brand">Expense Tracker</div>
+              <h1>My Expense Report</h1>
+              <p class="subtitle">A complete record of your expenses</p>
+            </header>
+
+            <section class="details">
+              <div>
+                <span class="detail-label">Prepared for</span>
+                <span class="detail-value">${escapeHtml(user.name)}</span>
+              </div>
+              <div>
+                <span class="detail-label">Number of expenses</span>
+                <span class="detail-value">${expenses.length}</span>
+              </div>
+              <div>
+                <span class="detail-label">Report date</span>
+                <span class="detail-value">${escapeHtml(
+                  new Date().toLocaleDateString('en-IN')
+                )}</span>
+              </div>
+            </section>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Full description</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th class="amount">Amount</th>
+                </tr>
+              </thead>
+              <tbody>${expenseRows}</tbody>
+            </table>
+
+            <div class="total">
+              <span>Total recorded</span>
+              <span>${escapeHtml(formatMoney(total))}</span>
+            </div>
+
+            <p class="footer">
+              Generated from Expense Tracker
+            </p>
+          </main>
+        </body>
+      </html>
+    `)
+
+    printWindow.document.close()
+    printWindow.focus()
+
+    window.setTimeout(() => {
+      printWindow.print()
+    }, 400)
+  }
 
   if (checkingSession) {
     return <main className="app">Checking your session...</main>
@@ -239,7 +490,6 @@ function App() {
               }
             />
           </label>
-
           <div className="form-row">
             <label>
               Amount (₹)
@@ -290,15 +540,21 @@ function App() {
           <h2>Recent expenses</h2>
 
           {expenses.length === 0 ? (
-            <p className="empty-message">No expenses yet. Add your first one above.</p>
+            <p className="empty-message">
+              No expenses yet. Add your first one above.
+            </p>
           ) : (
             expenses.map((expense) => (
               <article className="expense-item" key={expense.id}>
                 <div>
                   <strong>{expense.description}</strong>
-                  <span>{expense.category} · {expense.date}</span>
+                  <span>
+                    {expense.category} · {expense.date}
+                  </span>
                 </div>
+
                 <b>{formatMoney(expense.amount)}</b>
+
                 <button
                   className="delete-button"
                   type="button"
@@ -310,6 +566,59 @@ function App() {
             ))
           )}
         </section>
+
+        <button
+          className="download-receipt-button"
+          type="button"
+          onClick={downloadExpenseReport}
+          disabled={expenses.length === 0}
+          style={{
+            width: '100%',
+            minHeight: '58px',
+            marginTop: '24px',
+            padding: '11px 18px',
+            border: '0',
+            borderRadius: '14px',
+            color: '#ffffff',
+            background:
+              expenses.length === 0
+                ? '#aaa3b7'
+                : 'linear-gradient(135deg, #e44d9a 0%, #8757e8 55%, #4f46e5 100%)',
+            boxShadow:
+              expenses.length === 0
+                ? 'none'
+                : '0 8px 20px rgba(111, 72, 190, 0.28)',
+            fontSize: '16px',
+            fontWeight: '700',
+            cursor: expenses.length === 0 ? 'not-allowed' : 'pointer',
+            opacity: expenses.length === 0 ? 0.65 : 1
+          }}
+        >
+          ✨ Get My Expense Receipt
+          <span
+            style={{
+              display: 'block',
+              marginTop: '3px',
+              fontSize: '11px',
+              fontWeight: '500',
+              opacity: 0.9
+            }}
+          >
+            Full descriptions, dates, categories and total
+          </span>
+        </button>
+
+        <span
+          style={{
+            display: 'block',
+            marginTop: '7px',
+            color: '#66736d',
+            fontSize: '12px',
+            textAlign: 'center'
+          }}
+        >
+          Opens a print window where you can save it as a PDF.
+        </span>
       </section>
     </main>
   )

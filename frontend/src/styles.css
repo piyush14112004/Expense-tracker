@@ -2,6 +2,8 @@
   font-family: Arial, sans-serif;
   color: #20352b;
   background: #f4f7f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -9,44 +11,102 @@
 }
 
 body {
-  margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: #eeeaff;
 }
 
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+/* Top header */
 .topbar {
-  height: 68px;
-  padding: 0 7%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
-  background: white;
-  border-bottom: 1px solid #e2ebe4;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 76px;
+  padding: 14px clamp(20px, 7vw, 118px);
+  background: #120c0c;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.brand {
-  color: #26734d;
-  font-size: 20px;
+.topbar .brand {
+  margin-right: auto;
+  color: #39724f;
+  font-size: 1.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.topbar > span:last-child {
+  margin-left: auto;
+  color: #52635b;
+  font-weight: 600;
+}
+
+.account-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.account-actions > span {
+  color: #39724f;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
+.logout-button {
+  flex-shrink: 0;
+  padding: 9px 15px;
+  color: white;
+  background: #8b5cf6;
+  border: 0;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+
+.logout-button:hover:not(:disabled) {
+  background: #7041d8;
+  filter: brightness(1.08);
+}
+
+/* Main app card */
 .welcome-card {
+  position: relative;
   max-width: 900px;
   margin: 70px auto;
   padding: 48px;
+  overflow: hidden;
   border: 1px solid #e2ebe4;
-  border-radius: 18px;
-  background: white;
-  box-shadow: 0 12px 35px #20352b0d;
+  border-radius: 20px;
+  background: #f8f6ff;
+  box-shadow: 0 16px 45px rgba(32, 53, 43, 0.1);
 }
 
 .eyebrow {
   color: #39815c;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.8px;
 }
 
 .welcome-card h1 {
   margin: 14px 0 10px;
+  color: #20352b;
   font-size: clamp(32px, 6vw, 54px);
 }
 
@@ -55,13 +115,116 @@ body {
   line-height: 1.6;
 }
 
-@media (max-width: 600px) {
-  .welcome-card {
-    margin: 28px 16px;
-    padding: 28px 22px;
-  }
+/* Login page only */
+.app:has(input[type='password']) {
+  min-height: 100vh;
+  padding-bottom: 40px;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(139, 92, 246, 0.16), transparent 34%),
+    radial-gradient(ellipse at 85% 85%, rgba(57, 129, 92, 0.16), transparent 34%),
+    #f0edff;
 }
 
+.app:has(input[type='password']) .topbar {
+  position: static;
+  background: rgba(18, 12, 12, 0.97);
+}
+
+.app:has(input[type='password']) .welcome-card {
+  max-width: 500px;
+  margin: 56px auto;
+  padding: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 24px 70px rgba(47, 38, 82, 0.16),
+    0 4px 14px rgba(47, 38, 82, 0.06);
+  animation: login-card-appear 450ms ease both;
+}
+
+.app:has(input[type='password']) .welcome-card::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, #39724f, #8b5cf6, #e44d9a);
+  content: '';
+}
+
+.app:has(input[type='password']) .welcome-card .eyebrow {
+  margin-top: 4px;
+  color: #39724f;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.app:has(input[type='password']) .welcome-card h1 {
+  margin-top: 18px;
+  font-size: clamp(34px, 7vw, 46px);
+  line-height: 1.12;
+}
+
+.app:has(input[type='password']) .welcome-card > p {
+  color: #6b7770;
+  line-height: 1.6;
+}
+
+.app:has(input[type='password']) .expense-form {
+  max-width: none;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.app:has(input[type='password']) .expense-form label {
+  gap: 8px;
+  color: #40534a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.app:has(input[type='password']) .expense-form input {
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid #dce6df;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.app:has(input[type='password']) .expense-form input:focus {
+  border-color: #8b5cf6;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.14);
+}
+
+.app:has(input[type='password']) .expense-form > button {
+  min-height: 50px;
+  margin-top: 4px;
+  border-radius: 11px;
+  background: linear-gradient(110deg, #39724f, #26734d);
+  box-shadow: 0 9px 20px rgba(38, 115, 77, 0.2);
+  font-size: 15px;
+}
+
+.app:has(input[type='password']) .expense-form > button:hover:not(:disabled) {
+  background: linear-gradient(110deg, #2f6545, #1c5d3d);
+}
+
+.app:has(input[type='password']) .welcome-card > p button {
+  padding: 0;
+  color: #7041d8;
+  background: transparent;
+  border: 0;
+  font-weight: 700;
+}
+
+.app:has(input[type='password']) .welcome-card > p button:hover {
+  color: #4f2bb0;
+  text-decoration: underline;
+}
+
+/* Expense summary */
 .summary {
   display: flex;
   flex-direction: column;
@@ -82,6 +245,7 @@ body {
   font-size: 30px;
 }
 
+/* Expense form */
 .expense-form {
   display: grid;
   gap: 16px;
@@ -126,6 +290,7 @@ body {
   background: #1c5d3d;
 }
 
+/* Expense list */
 .expense-list {
   margin-top: 38px;
 }
@@ -159,100 +324,78 @@ body {
 }
 
 .delete-button {
+  padding: 7px 10px;
   border: 0;
+  border-radius: 7px;
   color: #a34132;
   background: transparent;
 }
 
+.delete-button:hover:not(:disabled) {
+  color: #7f2419;
+  background: #fff0ee;
+}
+
+/* Hover and click effect for controls */
+button,
+a,
+input,
+select {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    filter 180ms ease;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+button:hover:not(:disabled),
+a:hover,
+input:hover,
+select:hover {
+  position: relative;
+  z-index: 2;
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 8px 18px rgba(32, 53, 43, 0.16);
+}
+
+input:hover,
+select:hover {
+  border-color: #8eb49b;
+}
+
+button:active:not(:disabled),
+a:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 3px 8px rgba(32, 53, 43, 0.14);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(139, 92, 246, 0.35);
+  outline-offset: 3px;
+}
+
+/* Mobile layout */
 @media (max-width: 600px) {
-  .form-row {
-    grid-template-columns: 1fr;
+  .welcome-card {
+    margin: 28px 16px;
+    padding: 28px 22px;
   }
 
-  .expense-item {
-    flex-wrap: wrap;
-  }
-}
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 18px clamp(20px, 7vw, 118px);
-}
-
-.topbar .brand {
-  font-size: 1.25rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.topbar > span:last-child {
-  margin-left: auto;
-  color: #52635b;
-  font-weight: 600;
-}
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: rgb(18, 12, 12);
-}
-.topbar .brand,
-.topbar > span:last-child {
-  color: #39724f;
-  font-family: inherit;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-body {
-  background: #eeeaff;
-}
-.welcome-card {
-  background: #f8f6ff;
-}
-.account-actions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.account-actions > span {
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-.topbar .brand,
-.account-actions > span {
-  color: #39724f;
-}
-.logout-button {
-  background-color: #8b5cf6;
-  color: white;
-  border: none;
-  border-radius: 8px;
-}
-
-.logout-button:hover {
-  background-color: #7041d8;
-}
-.topbar .brand {
-  margin-right: auto;
-}
-.topbar .brand {
-  font-size: 1.8rem;
-  font-weight: 1000;
-}
-.logout-button {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-@media (max-width: 600px) {
   .topbar {
-    padding-left: 16px;
-    padding-right: 16px;
+    min-height: 68px;
+    padding: 14px 16px;
   }
 
   .topbar .brand {
@@ -261,5 +404,43 @@ body {
 
   .account-actions {
     gap: 10px;
+  }
+
+  .account-actions > span {
+    font-size: 1.1rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-item {
+    flex-wrap: wrap;
+  }
+
+  .app:has(input[type='password']) .welcome-card {
+    margin: 32px 16px;
+    padding: 32px 24px;
+  }
+}
+
+@keyframes login-card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

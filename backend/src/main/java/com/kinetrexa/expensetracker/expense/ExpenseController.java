@@ -1,6 +1,5 @@
 package com.kinetrexa.expensetracker.expense;
 
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,7 +16,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/expenses")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")public class ExpenseController {
+@CrossOrigin(
+        origins = {
+                "http://localhost:5173",
+                "https://expense-tracker-bp-0f6b.vercel.app"
+        },
+        allowCredentials = "true"
+)
+public class ExpenseController {
 
     private final ExpenseService expenseService;
 
@@ -33,7 +39,7 @@ import java.util.List;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Expense addExpense(
-            @Valid @RequestBody Expense expense,
+            @RequestBody Expense expense,
             Authentication authentication) {
         return expenseService.addExpense(expense, authentication.getName());
     }

@@ -19,7 +19,8 @@ import java.util.List;
 @CrossOrigin(
         origins = {
                 "http://localhost:5173",
-                "https://expense-tracker-bp-0f6b.vercel.app"
+                "https://expense-tracker-bp-0f6b.vercel.app",
+                "https://expense-tracker-git-main-bp-0f6b.vercel.app"
         },
         allowCredentials = "true"
 )

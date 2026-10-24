@@ -58,9 +58,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-    "http://localhost:5173",
-    "https://expense-tracker-bp-0f6b.vercel.app"
-));
+                "http://localhost:5173",
+                "https://expense-tracker-bp-0f6b.vercel.app",
+                "https://expense-tracker-git-main-bp-0f6b.vercel.app"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -77,23 +78,23 @@ public class SecurityConfig {
             SecurityContextRepository securityContextRepository) throws Exception {
 
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .csrf(csrf -> csrf.disable())
-            .securityContext(context ->
-                    context.securityContextRepository(securityContextRepository))
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(
-                            org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/api/expenses/**").authenticated()
-                    .anyRequest().permitAll()
-            )
-            .httpBasic(basic -> basic.disable())
-            .formLogin(form -> form.disable())
-            .logout(logout -> logout.disable());
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(csrf -> csrf.disable())
+                .securityContext(context ->
+                        context.securityContextRepository(securityContextRepository))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/expenses/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
